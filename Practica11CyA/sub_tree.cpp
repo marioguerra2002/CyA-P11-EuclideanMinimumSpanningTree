@@ -4,7 +4,7 @@
 #include <algorithm>
 #include <utility>
 
-#include "sub_tree.h"
+#include "sub_tree.hpp"
 
 
 namespace EMST {
