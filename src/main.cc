@@ -49,8 +49,8 @@ void write_dot(const std::string &filename, const CyA::point_set &ps) {
 }
 
 int main(int argc, char *argv[]) {
-    if (argc != 3) { // Cambiar para requerir archivo de entrada y salida
-        std::cerr << "Uso: " << argv[0] << " <archivo_de_puntos> <archivo_de_salida.dot>" << std::endl;
+    if (argc < 3) { // Cambiar para requerir archivo de entrada y salida
+        std::cerr << "Uso: " << argv[0] << " <archivo_de_puntos> <archivo_de_salida.dot> [-d]\n";
         return 1;
     }
 
@@ -82,10 +82,40 @@ int main(int argc, char *argv[]) {
     // Calcular el EMST
     ps.EMST();
 
-    // Escribir el archivo DOT
-    write_dot(argv[2], ps);
+    // Obtener el nombre del archivo de salida y asegurarnos de que tenga la extensión .dot o .txt
+    std::string output_dot = argv[2];
+    // si no se le pone la opcion -d, se mantiene el txt como extension del archivo
+    if (argc == 4 && std::string(argv[3]) == "-d") {
+        if (output_dot.find(".txt") != std::string::npos) {
+            output_dot.replace(output_dot.find(".txt"), 4, ".dot"); // Reemplazar .txt por .dot
+        }
+        write_dot(output_dot, ps); // Genera el archivo DOT
+        std::cout << "Archivo DOT generado: " << output_dot << std::endl;
+    } else { // cuando no se pone la opcion -d
+        if (output_dot.find(".txt") == std::string::npos) {
+            output_dot += ".txt"; // Si no tiene la extensión .txt, agregarla
+        }
+        std::ofstream output(output_dot);
+        if (!output) {
+            std::cerr << "Error al abrir el archivo de salida: " << output_dot << std::endl;
+            return 1;
+        }
 
-    std::cout << "Archivo DOT generado: " << argv[2] << std::endl;
+        output << ps.get_cost() << std::endl; // Escribir el costo total del EMST
+        output.close();
+
+    }
+
+    // if (output_dot.find(".dot") == std::string::npos) {
+    //     output_dot += ".dot"; // Si no tiene la extensión .dot, agregarla
+    // }
+
+    // // Escribir el archivo DOT si se pasa la opción -d 
+    // if (argc == 4 && std::string(argv[3]) == "-d") {
+    //     write_dot(output_dot, ps); // Genera el archivo DOT
+    //     std::cout << "Archivo DOT generado: " << output_dot << std::endl;
+    // } 
+
     std::cout << "Costo total del EMST: " << ps.get_cost() << std::endl;
 
     return 0;
